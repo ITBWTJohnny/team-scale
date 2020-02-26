@@ -27,10 +27,10 @@
     <div class="container">
         <div class="row">
            <div class="col-md-4 offset-md-4">
-               <form method="post" action="/import" enctype="multipart/form-data">
+               <form method="post" id="form" action="/import" enctype="multipart/form-data">
                    <div class="form-group">
                        <label for="exampleInputPassword1">Upload Csv File</label>
-                       <input type="file" name="file" class="form-control-file" id="exampleFormControlFile1">
+                       <input type="file" name="file" required class="form-control-file" id="exampleFormControlFile1">
                    </div>
                    <div style="display:flex">
                        <div class="spinner-border text-primary" id="spinner" role="status" style="display:none;margin-right: 1rem">
@@ -55,6 +55,8 @@
           spinner.style.display = 'inline-block';
           button.disabled = true;
         }
+
+        document.getElementById("form").addEventListener("submit", submitForm);
     </script>
 </body>
 </html>
