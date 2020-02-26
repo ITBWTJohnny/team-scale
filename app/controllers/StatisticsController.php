@@ -4,6 +4,7 @@
 namespace App\Controllers;
 
 
+use App\Exceptions\File\FileNotFoundException;
 use App\Services\StorageFileService;
 
 class StatisticsController
@@ -20,8 +21,13 @@ class StatisticsController
 
     public function statistics()
     {
-        $statistics = $this->storageFileService->readFile('statistics.txt');
-        $statistics = unserialize($statistics);
+        try {
+            $statistics = $this->storageFileService->readFile('statistics.txt');
+            $statistics = unserialize($statistics);
+        } catch (FileNotFoundException $e) {
+            $statistics = [];
+        }
+
 
         include_once __ROOT__ .'/resources/statistics.php';
     }
