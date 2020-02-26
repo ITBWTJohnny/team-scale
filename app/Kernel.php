@@ -16,38 +16,11 @@ class Kernel
     /**
      * @var
      */
-    private $builder;
-
-    /**
-     * @var
-     */
     private $handler;
 
     /**
-     * @var Request
-     */
-    private $request;
-
-    /**
-     * @var Response
-     */
-    private $response;
-
-    /**
-     * @var MiddlewareMediator
-     */
-    private $mediator;
-
-    /**
-     * @var
-     */
-    private $controller;
-
-    /**
      * Kernel constructor.
-     * @param RelayBuilder $builder
      * @param Handler $handler
-     * @param MiddlewareMediator $mediator
      */
     public function __construct(Handler $handler)
     {
@@ -57,33 +30,22 @@ class Kernel
     /**
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Exception
      */
     public function run()
     {
-        $this->runHandler();
+        $this->handler->handle();
+        $controller = $this->handler->getController();
+        $method = $this->handler->getMethod();
 
         try {
-
-            $controller = container()->get($this->request->get('controller'));
-            $this->response = $controller->{$this->request->get('method')}();
+            $controller = container()->get($controller);
+            $controller->{$method}();
         } catch (\Exception $e) {
-
-             $this->response = $this->response->withStatus(500)
-                ->withStrToBody($e->getMessage() . '</br>' . $e->getTraceAsString());
+            dd($e);
         }
 
-
-        $this->response->send();
         ob_end_flush();
     }
 
-    /**
-     *
-     */
-    private function runHandler(): void
-    {
-        $this->handler->handle();
-        $this->response = $this->handler->getResponse();
-        $this->request = $this->handler->getRequest();
-    }
 }

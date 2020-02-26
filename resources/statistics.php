@@ -14,7 +14,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/">Upload file</a>
+                <a class="nav-link" href="/">File upload</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/statistics">Statistics</a>
@@ -26,35 +26,36 @@
 </nav>
     <div class="container">
         <div class="row">
-           <div class="col-md-4 offset-md-4">
-               <form method="post" action="/import" enctype="multipart/form-data">
-                   <div class="form-group">
-                       <label for="exampleInputPassword1">Upload Csv File</label>
-                       <input type="file" name="file" class="form-control-file" id="exampleFormControlFile1">
-                   </div>
-                   <div style="display:flex">
-                       <div class="spinner-border text-primary" id="spinner" role="status" style="display:none;margin-right: 1rem">
-                           <span class="sr-only">Loading...</span>
-                       </div>
-                       <button type="submit" id="button" class="btn btn-primary">Submit</button>
-                   </div>
+           <div class="col-md-10 offset-md-2">
+               <table class="table">
+                   <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Same Continent Calls Count</th>
+                            <th>Same Continent Calls Duration</th>
+                            <th>Total number of calls</th>
+                            <th>Total duration of calls</th>
+                        </tr>
+                   </thead>
+                   <tbody>
+                   <?php foreach ($statistics as $customerId => $item): ?>
+                       <tr>
+                           <td><?= $customerId; ?></td>
+                           <td><?= $item['same_continent_call_count']; ?></td>
+                           <td><?= $item['same_continent_duration']; ?></td>
+                           <td><?= $item['call_count']; ?></td>
+                           <td><?= $item['duration']; ?></td>
+                       </tr>
+                   <?php endforeach; ?>
+                   </tbody>
+               </table>
 
-               </form>
            </div>
         </div>
     </div>
 
-
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script>
-        function submitForm() {
-          let spinner = document.getElementById('spinner');
-          let button = document.getElementById('button');
-          spinner.style.display = 'inline-block';
-          button.disabled = true;
-        }
-    </script>
 </body>
 </html>

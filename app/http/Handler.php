@@ -9,6 +9,7 @@
 namespace App\Http;
 
 
+use App\Exceptions\NotFoundException;
 use FastRoute\Dispatcher\GroupCountBased;
 use Psr\Container\ContainerInterface;
 use function GuzzleHttp\Psr7\stream_for;
@@ -40,13 +41,13 @@ class Handler
     /**
      * @var Request
      */
-    private $request;
+    private $method;
 
 
     /**
      * @var
      */
-    private $response;
+    private $controller;
 
     /**
      * @var ContainerInterface
@@ -60,47 +61,29 @@ class Handler
      * @param Request $request
      * @param Response $response
      */
-    public function __construct(GroupCountBased $router, Request $request, Response $response)
+    public function __construct(GroupCountBased $router)
     {
         $this->container = container();
         $this->router = $router;
-        $this->request = $request;
-        $this->response = $response;
 
         $this->formattingData();
     }
 
 
     /**
-     * @return Request
-     */
-    public function getRequest(): Request
-    {
-        return $this->request;
-    }
-
-    /**
-     * @param Request $request
-     */
-    public function setRequest(Request $request): void
-    {
-        $this->request = $request;
-    }
-
-    /**
      * @return mixed
      */
-    public function getResponse()
+    public function getController()
     {
-        return $this->response;
+        return $this->controller;
     }
 
     /**
      * @param mixed $response
      */
-    public function setResponse($response): void
+    public function getMethod()
     {
-        $this->response = $response;
+        return $this->method;
     }
 
     /**
@@ -111,17 +94,14 @@ class Handler
         try {
             switch ($this->status) {
                 case \FastRoute\Dispatcher::NOT_FOUND:
-                    $this->handlerNotFound();
-                    break;
-                case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                    $this->handlerNotAllowed();
+                    throw new NotFoundException('Not found route for url - '. $this->getUri());
                     break;
                 case \FastRoute\Dispatcher::FOUND:
                     $this->handlerFound();
                     break;
             }
         } catch (\Exception $e) {
-            $this->handlerServerError($e);
+            throw $e;
         }
 
 
@@ -133,7 +113,7 @@ class Handler
      */
     private function buildRouteInfo(): array
     {
-        $method = $this->getMethod();
+        $method = $this->getRequestMethod();
         $uri = $this->getUri();
         $uri = $this->clearUrl($uri);
 
@@ -163,17 +143,17 @@ class Handler
     /**
      * @return string
      */
-    private function getMethod(): string
+    private function getRequestMethod(): string
     {
-        return $this->request->getMethod();
+        return $_SERVER['REQUEST_METHOD'];
     }
 
-    /**
+    /**1
      * @return \GuzzleHttp\Psr7\Uri|\Psr\Http\Message\UriInterface|string
      */
     private function getUri(): string
     {
-        return $this->request->getUri();
+        return $_SERVER['REQUEST_URI'];
     }
 
     /**
@@ -182,42 +162,11 @@ class Handler
     private function handlerFound(): void
     {
         [$controller, $method] = explode('@', $this->handler);
-        $this->response = $this->response->withStatus(200);
 
-        $this->request->set('controller', $controller);
-        $this->request->set('method', $method);
+        $this->controller = $controller;
+        $this->method = $method;
     }
 
-    /**
-     *
-     */
-    private function handlerNotAllowed(): void
-    {
-        $this->response = $this->response
-            ->withHeader('Content-Type', 'text/html; charset=UTF-8')
-            ->withStatus(405);
-    }
 
-    /**
-     *
-     */
-    private function handlerNotFound(): void
-    {
-
-        $this->response = $this->response->withStatus(200);
-        $this->request->setHandler($this->handler, $this->vars);
-
-    }
-
-    /**
-     * @param \Exception $e
-     */
-    private function handlerServerError(\Exception $e): void
-    {
-        $this->response = $this->response
-            ->withHeader('Content-Type', 'text/html; charset=UTF-8')
-            ->withBody(stream_for($e->getMessage()))
-            ->withStatus(500);
-    }
 
 }

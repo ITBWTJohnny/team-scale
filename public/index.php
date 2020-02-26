@@ -41,5 +41,5 @@ require_once($rootDir .'/vendor/autoload.php');
 require_once($rootDir . '/bootstrap/bootstrap.php');
 require_once($rootDir .'/config/routes.php');
 
-$kernel = $container->get('kernel');
+$kernel = $container->get(\App\Kernel::class);
 $kernel->run();

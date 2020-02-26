@@ -8,30 +8,51 @@
 
 namespace App\Controllers;
 
-
-use App\Http\Request;
-use App\Http\Response;
+use App\Services\CsvFileReader;
+use App\Services\StatisticsService;
+use App\Services\StorageFileService;
 
 class MainController
 {
-    /**
-     * @var Request
-     */
-    private $request;
-    /**
-     * @var Response
-     */
-    private $response;
 
-    public function __construct(Request $request, Response $response)
+    /**
+     * @var StatisticsService
+     */
+    private $statisticsService;
+    /**
+     * @var CsvFileReader
+     */
+    private $csvFileReader;
+    /**
+     * @var StorageFileService
+     */
+    private $storageFileService;
+
+    public function __construct(
+        StatisticsService $statisticsService,
+        CsvFileReader $csvFileReader,
+        StorageFileService $storageFileService
+    )
     {
-        $this->request = $request;
-        $this->response = $response;
+
+        $this->statisticsService = $statisticsService;
+        $this->csvFileReader = $csvFileReader;
+        $this->storageFileService = $storageFileService;
     }
 
     public function form()
     {
         include_once __ROOT__ .'/resources/form.php';
-        return $this->response;
+    }
+
+    public function import()
+    {
+        $fileData = $this->csvFileReader->readFile('file');
+
+        $statistics = $this->statisticsService->buildStatistics($fileData);
+
+        $this->storageFileService->writeFile('statistics.txt', serialize($statistics));
+
+        redirectTo('/statistics');
     }
 }

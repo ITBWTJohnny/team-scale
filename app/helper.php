@@ -11,3 +11,11 @@ if (!function_exists('container')) {
         return $c;
     }
 }
+
+if (!function_exists('redirectTo')) {
+    function redirectTo($url, $permanent = false)
+    {
+        header('Location: ' . $url, true, $permanent ? 301 : 302);
+        exit();
+    }
+}
