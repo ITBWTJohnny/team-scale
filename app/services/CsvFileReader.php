@@ -6,6 +6,11 @@ class CsvFileReader
 {
     const VALID_FILE_TYPES = ['text/csv'];
 
+    /**
+     * @param string $filename
+     * @return array
+     * @throws \Exception
+     */
     public function readFile(string $filename): array
     {
         $this->checkFileType($filename);
@@ -22,6 +27,10 @@ class CsvFileReader
         return $fileData;
     }
 
+    /**
+     * @param string $filename
+     * @throws \Exception
+     */
     private function checkFileType(string $filename)
     {
         if (!in_array($_FILES[$filename]['type'], self::VALID_FILE_TYPES)) {

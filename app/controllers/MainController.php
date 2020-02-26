@@ -47,7 +47,11 @@ class MainController
 
     public function import()
     {
-        $fileData = $this->csvFileReader->readFile('file');
+        try {
+            $fileData = $this->csvFileReader->readFile('file');
+        } catch (\Exception $e) {
+            redirectTo('/');
+        }
 
         $statistics = $this->statisticsService->buildStatistics($fileData);
 
